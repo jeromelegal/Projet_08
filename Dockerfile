@@ -1,6 +1,8 @@
 # Utiliser une image Python légère comme base
 FROM python:3.9-slim
 
+WORKDIR /app
+
 # Copier les fichiers de votre projet dans le conteneur
 COPY ./app.py /app/app.py
 COPY ./requirements.txt /app/requirements.txt
