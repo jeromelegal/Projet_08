@@ -15,15 +15,15 @@ def create_age_distribution(df, client_age):
         'bottom': [0]*len(hist)
     })
     # Création du graphique
-    p = figure(title="Distribution of Ages", x_axis_label="Age (years)", y_axis_label="Count", plot_height=300)
+    p = figure(title="Age des clients", x_axis_label="Age (années)", y_axis_label="Quantité", plot_height=300)
     bars = p.quad(top='top', bottom='bottom', left='left', right='right',
                   source=source, fill_alpha=0.7, line_color="black")
     # Ligne pour l'âge du client
-    p.line([client_age, client_age], [0, max(hist)], color='red', line_width=2, legend_label=f"Client Age: {client_age}")
+    p.line([client_age, client_age], [0, max(hist)], color='red', line_width=2, legend_label=f"Age du client: {client_age}")
     # Infobulles
     hover = HoverTool(renderers=[bars], tooltips=[
-        ("Age Range", "@left - @right"),
-        ("Count", "@top")
+        ("Tranche d'âge", "@left - @right"),
+        ("Quantité", "@top")
     ])
     p.add_tools(hover)
     p.legend.location = "top_right"
@@ -40,16 +40,16 @@ def create_income_distribution(df, client_income):
         'bottom': [0]*len(hist)
     })
     # Création du graphique
-    p = figure(title="Distribution of Incomes", x_axis_label="Income (€)", y_axis_label="Count", plot_height=300)
+    p = figure(title="Revenus des clients", x_axis_label="Revenu (€)", y_axis_label="Quantité", plot_height=300)
     bars = p.quad(top='top', bottom='bottom', left='left', right='right',
                   source=source, fill_alpha=0.7, line_color="black")
     # Ligne pour le revenu du client
-    p.line([client_income, client_income], [0, max(hist)], color='blue', line_width=2, legend_label=f"Client Income: {client_income:,.0f}")
+    p.line([client_income, client_income], [0, max(hist)], color='blue', line_width=2, legend_label=f"Revenu du client: {client_income:,.0f}")
     p.xaxis.formatter = NumeralTickFormatter(format="0,0")
     # Infobulles
     hover = HoverTool(renderers=[bars], tooltips=[
-        ("Income Range", "@left{0,0} - @right{0,0}"),
-        ("Count", "@top")
+        ("Tranche de revenu", "@left{0,0} - @right{0,0}"),
+        ("Quantité", "@top")
     ])
     p.add_tools(hover)
     p.legend.location = "top_right"
@@ -63,15 +63,15 @@ def create_children_distribution(df, client_children):
         'counts': global_children.values
     })
     # Création du graphique
-    p = figure(title="Number of Children", x_axis_label="Number of Children", y_axis_label="Count", plot_height=300)
-    bars = p.vbar(x='children', top='counts', source=source_children, width=0.5, color="orange", legend_label="Global Distribution")
+    p = figure(title="Nombre d'enfants par client", x_axis_label="Nombre d'enfants", y_axis_label="Quantité", plot_height=300)
+    bars = p.vbar(x='children', top='counts', source=source_children, width=0.5, color="orange", legend_label="Distribution globale")
     # Ajout de la barre pour le client
     if client_children in global_children.index:
-        p.vbar(x=[client_children], top=[global_children[client_children]], width=0.5, color="red", legend_label=f"Client Children: {client_children}")
+        p.vbar(x=[client_children], top=[global_children[client_children]], width=0.5, color="red", legend_label=f"Enfants du client: {client_children}")
     # Infobulles
     hover = HoverTool(renderers=[bars], tooltips=[
-        ("Number of Children", "@children"),
-        ("Count", "@counts")
+        ("Nombre d'enfants", "@children"),
+        ("Quantité", "@counts")
     ])
     p.add_tools(hover)
     p.legend.location = "top_right"
@@ -85,16 +85,16 @@ def create_marital_status_distribution(df, client_status):
         'counts': global_status.values
     })
     # Création du graphique
-    p = figure(title="Marital Status", x_axis_label="Marital Status", y_axis_label="Count", 
+    p = figure(title="Situation marital", x_axis_label="Statut marital", y_axis_label="Quantité", 
                x_range=list(global_status.index), plot_height=300)
-    bars = p.vbar(x='status', top='counts', source=source_status, width=0.5, color="purple", legend_label="Global Distribution")
+    bars = p.vbar(x='status', top='counts', source=source_status, width=0.5, color="purple", legend_label="Distribution globale")
     # Ajout de la barre pour le client
     if client_status in global_status.index:
-        p.vbar(x=[client_status], top=[global_status[client_status]], width=0.5, color="red", legend_label=f"Client Status: {client_status}")
+        p.vbar(x=[client_status], top=[global_status[client_status]], width=0.5, color="red", legend_label=f"Statut du client: {client_status}")
     # Infobulles
     hover = HoverTool(renderers=[bars], tooltips=[
-        ("Marital Status", "@status"),
-        ("Count", "@counts")
+        ("Statut marital", "@status"),
+        ("Quantité", "@counts")
     ])
     p.add_tools(hover)
     p.xaxis.major_label_orientation = "vertical"
