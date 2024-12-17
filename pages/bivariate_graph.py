@@ -65,26 +65,33 @@ def create_bivariate_graph(data):
                 st.warning(f"{y_var} n'est pas numérique. Impossible de générer un Box Plot.")
                 return None
 
+            # Calcul des statistiques par groupe
             grouped = data.groupby(x_var)[y_var].describe()
-            grouped.columns = ['_'.join(col).strip() for col in grouped.columns.values]
-            grouped = grouped.reset_index()
 
-            lower = grouped[f"{y_var}_min"]
-            q1 = grouped[f"{y_var}_25%"]
-            median = grouped[f"{y_var}_50%"]
-            q3 = grouped[f"{y_var}_75%"]
-            upper = grouped[f"{y_var}_max"]
+            # Accès aux colonnes multi-niveaux
+            lower = grouped["min"]
+            q1 = grouped["25%"]
+            median = grouped["50%"]
+            q3 = grouped["75%"]
+            upper = grouped["max"]
 
+            # Création d'une source Bokeh
             source = ColumnDataSource(data=dict(
-                categories=grouped[x_var].astype(str),
-                lower=lower, q1=q1, median=median, q3=q3, upper=upper
+                categories=grouped.index.astype(str),  # x_var
+                lower=lower,
+                q1=q1,
+                median=median,
+                q3=q3,
+                upper=upper
             ))
 
+            # Initialisation du graphique
             p = figure(title=f"Box Plot : {x_var} vs {y_var}",
-                       x_range=grouped[x_var].astype(str).tolist(),
-                       plot_width=700, plot_height=500)
+                    x_range=grouped.index.astype(str).tolist(),
+                    x_axis_label=x_var, y_axis_label=y_var,
+                    plot_width=700, plot_height=500)
 
-            # Boîtes
+            # Création des boîtes
             p.vbar(x="categories", top="q3", bottom="q1", width=0.7, fill_color="lightblue", source=source)
 
             # Moustaches
@@ -97,10 +104,10 @@ def create_bivariate_graph(data):
             # Infobulles
             hover = HoverTool(tooltips=[
                 ("Category", "@categories"),
+                ("Min", "@lower"),
                 ("Q1", "@q1"),
                 ("Median", "@median"),
                 ("Q3", "@q3"),
-                ("Min", "@lower"),
                 ("Max", "@upper")
             ])
             p.add_tools(hover)
