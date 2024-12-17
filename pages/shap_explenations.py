@@ -57,7 +57,7 @@ def compare_feature_importance_bokeh(global_shap_values, local_shap_values, feat
     # Étape 4 : Création du barplot avec Bokeh
     p = figure(
         y_range=list(shap_df["Feature"]),  # Range inversé
-        title="Comparaison Feature Importance (Top 10)",
+        title="Comparaison des caractéristiques importantes (Top 10)",
         plot_height=400,  # Hauteur ajustée
         plot_width=650,   # Largeur ajustée pour éviter les débordements
         toolbar_location=None,

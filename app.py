@@ -123,35 +123,65 @@ with col_left:
         with st.container(border=True):
             st.subheader("Probabilité d'Obtention du Crédit")
             st.bokeh_chart(dotplot, use_container_width=True)
+            st.caption(
+        "Ce graphique montre la probabilité estimée que le crédit soit accordé. "
+        "Le point bleu représente le client sélectionné, et la ligne en pointillés indique le seuil de refus (0.3)."
+        " "
+    )
 
         with st.container(border=True):
             st.subheader("Graphiques Clients")
-            tab = st.tabs(["Age Distribution", "Income Distribution", "Number of Children", "Marital Status"])
+            tab = st.tabs([
+                "Distribution de l'âge", 
+                "Distribution des revenus", 
+                "Nombre d'enfant", 
+                "Statut marital"
+            ])
+
             with tab[0]:
                 st.bokeh_chart(tab1_graph)
+                st.caption("Ce graphique montre la distribution des âges dans l'ensemble des clients, avec une ligne rouge indiquant l'âge du client sélectionné.")
+    
             with tab[1]:
                 st.bokeh_chart(tab2_graph)
+                st.caption("Ce graphique représente la distribution des revenus des clients, avec une ligne bleue indiquant le revenu du client sélectionné.")
+    
             with tab[2]:
                 st.bokeh_chart(tab3_graph)
+                st.caption("Ce graphique indique le nombre d'enfants pour les clients, en comparaison avec le nombre d'enfants du client sélectionné (barre rouge).")
+    
             with tab[3]:
                 st.bokeh_chart(tab4_graph)
+                st.caption("Ce graphique montre le statut marital des clients, en comparant avec le statut marital du client sélectionné (barre rouge).")
 
     with left_col2:
         with st.container(border=True):
             st.subheader("Caractéristiques importantes")
             fig_shap = compare_feature_importance_bokeh(global_shap_values, local_shap_values, feature_names)
             st.bokeh_chart(fig_shap, use_container_width=True)
+            st.caption(
+                "Ce graphique représente les 10 caractéristiques qui ont le plus influencées la décision du modèle (classement d'importance du haut vers le bas)."
+                "En rouge nous retrouvons la valeur pour le client, en bleu la valeur moyenne."
+            )
 
         with st.container(border=True):
             st.subheader("Distribution des Crédits")
             st.bokeh_chart(credit_graph, use_container_width=True)
+            st.caption(
+        "Ce graphique représente la distribution de toutes les demandes de crédits. "
+        " "
+    )
 
 # right area : bivariate graph
 with col_right:
     with st.container(border=True):
-        st.subheader("Analyse Bivariée des Features")
+        st.subheader("Analyse de la Relation entre Deux Variables")
         bivariate_graph = create_bivariate_graph(clients_bivariate)
         if bivariate_graph:
             st.bokeh_chart(bivariate_graph, use_container_width=True)
+        st.caption(
+            "Ce graphique permet d’analyser la relation entre la variable X et Y. Utilisez le zoom pour explorer les détails."          
+        )
+        st.caption("🔍 **Astuce** : Vous pouvez zoomer ou survoler les points pour voir les détails.")
 
 

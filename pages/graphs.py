@@ -1,83 +1,190 @@
 import streamlit as st
 from bokeh.plotting import figure
-from bokeh.models import ColumnDataSource, NumeralTickFormatter, Div
+from bokeh.models import ColumnDataSource, NumeralTickFormatter, Div, HoverTool
 from bokeh.layouts import column
 import numpy as np
 
 def create_age_distribution(df, client_age):
+    # Création de l'histogramme
     hist, edges = np.histogram(df['DAYS_BIRTH'] / -365, bins=25)
+    # Source de données
+    source = ColumnDataSource(data={
+        'left': edges[:-1],
+        'right': edges[1:],
+        'top': hist,
+        'bottom': [0]*len(hist)
+    })
+    # Création du graphique
     p = figure(title="Distribution of Ages", x_axis_label="Age (years)", y_axis_label="Count", plot_height=300)
-    p.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:], fill_alpha=0.7, line_color="black")
+    bars = p.quad(top='top', bottom='bottom', left='left', right='right',
+                  source=source, fill_alpha=0.7, line_color="black")
+    # Ligne pour l'âge du client
     p.line([client_age, client_age], [0, max(hist)], color='red', line_width=2, legend_label=f"Client Age: {client_age}")
+    # Infobulles
+    hover = HoverTool(renderers=[bars], tooltips=[
+        ("Age Range", "@left - @right"),
+        ("Count", "@top")
+    ])
+    p.add_tools(hover)
     p.legend.location = "top_right"
     return p
 
 def create_income_distribution(df, client_income):
+    # Création de l'histogramme
     hist, edges = np.histogram(df['AMT_INCOME_TOTAL'], bins=100)
-    p = figure(title="Distribution of Incomes", x_axis_label="Income (€)", y_axis_label="Count", plot_height=300) #x_axis_type="log"
-    p.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:], fill_alpha=0.7, line_color="black")
+    # Source de données
+    source = ColumnDataSource(data={
+        'left': edges[:-1],
+        'right': edges[1:],
+        'top': hist,
+        'bottom': [0]*len(hist)
+    })
+    # Création du graphique
+    p = figure(title="Distribution of Incomes", x_axis_label="Income (€)", y_axis_label="Count", plot_height=300)
+    bars = p.quad(top='top', bottom='bottom', left='left', right='right',
+                  source=source, fill_alpha=0.7, line_color="black")
+    # Ligne pour le revenu du client
     p.line([client_income, client_income], [0, max(hist)], color='blue', line_width=2, legend_label=f"Client Income: {client_income:,.0f}")
     p.xaxis.formatter = NumeralTickFormatter(format="0,0")
+    # Infobulles
+    hover = HoverTool(renderers=[bars], tooltips=[
+        ("Income Range", "@left{0,0} - @right{0,0}"),
+        ("Count", "@top")
+    ])
+    p.add_tools(hover)
     p.legend.location = "top_right"
     return p
 
 def create_children_distribution(df, client_children):
     global_children = df['CNT_CHILDREN'].value_counts().sort_index()
-    source_children = ColumnDataSource(data=dict(children=global_children.index, counts=global_children.values))
+    # Source de données
+    source_children = ColumnDataSource(data={
+        'children': global_children.index,
+        'counts': global_children.values
+    })
+    # Création du graphique
     p = figure(title="Number of Children", x_axis_label="Number of Children", y_axis_label="Count", plot_height=300)
-    p.vbar(x='children', top='counts', source=source_children, width=0.5, color="orange", legend_label="Global Distribution")
+    bars = p.vbar(x='children', top='counts', source=source_children, width=0.5, color="orange", legend_label="Global Distribution")
+    # Ajout de la barre pour le client
     if client_children in global_children.index:
         p.vbar(x=[client_children], top=[global_children[client_children]], width=0.5, color="red", legend_label=f"Client Children: {client_children}")
+    # Infobulles
+    hover = HoverTool(renderers=[bars], tooltips=[
+        ("Number of Children", "@children"),
+        ("Count", "@counts")
+    ])
+    p.add_tools(hover)
     p.legend.location = "top_right"
     return p
 
 def create_marital_status_distribution(df, client_status):
     global_status = df['NAME_FAMILY_STATUS'].value_counts()
-    source_status = ColumnDataSource(data=dict(status=global_status.index, counts=global_status.values))
-    p = figure(title="Marital Status", x_axis_label="Marital Status", y_axis_label="Count", x_range=list(global_status.index), plot_height=300)
-    p.vbar(x='status', top='counts', source=source_status, width=0.5, color="purple", legend_label="Global Distribution")
+    # Source de données
+    source_status = ColumnDataSource(data={
+        'status': global_status.index,
+        'counts': global_status.values
+    })
+    # Création du graphique
+    p = figure(title="Marital Status", x_axis_label="Marital Status", y_axis_label="Count", 
+               x_range=list(global_status.index), plot_height=300)
+    bars = p.vbar(x='status', top='counts', source=source_status, width=0.5, color="purple", legend_label="Global Distribution")
+    # Ajout de la barre pour le client
     if client_status in global_status.index:
         p.vbar(x=[client_status], top=[global_status[client_status]], width=0.5, color="red", legend_label=f"Client Status: {client_status}")
+    # Infobulles
+    hover = HoverTool(renderers=[bars], tooltips=[
+        ("Marital Status", "@status"),
+        ("Count", "@counts")
+    ])
+    p.add_tools(hover)
     p.xaxis.major_label_orientation = "vertical"
     p.legend.location = "top_right"
     return p
 
 def create_credit_values_distribution(df, client_credit):
+    # Création de l'histogramme
     hist, edges = np.histogram(df['AMT_CREDIT'], bins=100)
-    p = figure(title="Distribution of Credits", x_axis_label="Value (€)", y_axis_label="Count", plot_height=358) #x_axis_type="log"
-    p.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:], fill_alpha=0.7, line_color="black")
-    p.line([client_credit, client_credit], [0, max(hist)], color='blue', line_width=2, legend_label=f"Client credit: {client_credit:,.0f}")
+    # Source de données pour Bokeh
+    source = ColumnDataSource(data={
+        'left': edges[:-1],  # Bords gauches des barres
+        'right': edges[1:],  # Bords droits des barres
+        'top': hist,         # Hauteur des barres (quantité)
+        'bottom': [0]*len(hist)  # Bas des barres
+    })
+    # Création de la figure
+    p = figure(
+        title="Quantité de crédits totale par montant",
+        x_axis_label="Valeur (€)",
+        y_axis_label="Quantité",
+        plot_height=358
+    )
+    # Ajout des barres de l'histogramme
+    bars = p.quad(
+        top='top', bottom='bottom', left='left', right='right',
+        source=source, fill_alpha=0.7, line_color="black"
+    )
+    # Ajout de la ligne de crédit du client
+    p.line(
+        [client_credit, client_credit], [0, max(hist)],
+        color='blue', line_width=2, legend_label=f"Client credit: {client_credit:,.0f}"
+    )
+    # Formatage de l'axe X
     p.xaxis.formatter = NumeralTickFormatter(format="0,0")
+    # Configuration des infobulles
+    hover = HoverTool(renderers=[bars], tooltips=[
+        ("Valeur", "@left{0,0} - @right{0,0}"),  # Intervalle des valeurs
+        ("Quantité", "@top")                    # Quantité pour chaque barre
+    ])
+    # Ajout des outils
+    p.add_tools(hover)
     p.legend.location = "top_right"
+
     return p
 
 def create_credit_probability_dotplot(df, client_proba):
     df['status'] = np.where(df['proba'] > 0.3, 'Accordé', 'Refusé')
-    df['color'] = np.where(df['proba'] > 0.3, 'green', 'red')
+    df['color'] = np.where(df['proba'] > 0.3, '#228B22', '#B22222')
+    df['icon'] = np.where(df['proba'] > 0.3, '✅', '❌')
     df['y'] = 1  
 
     # Source pour Bokeh
     source = ColumnDataSource(data={
         'proba': df['proba'],
         'color': df['color'],
+        'status': df['status'],
+        'icon': df['icon'],
         'y': df['y']
     })
     
     # Création du dotplot
     p = figure(title="Distribution des Probabilités d'Obtention du Crédit", 
-               x_axis_label="Probabilité", y_axis_label="",
-               plot_height=400, plot_width=650)
+               x_axis_label="Probabilité", 
+               y_axis_label="",
+               plot_height=400, 
+               plot_width=650,
+               tools="pan,zoom_in,zoom_out,reset,save"
+              )
 
     # Points pour tous les clients
-    p.scatter('proba', 'y', size=8, color='color', alpha=0.6, source=source)
+    scatter  = p.scatter('proba', 'y', size=10, color='color', alpha=0.7, source=source)
+    hover = HoverTool(renderers=[scatter], tooltips=[
+        ("Statut", "@status"),
+        ("Probabilité", "@proba{0.0%}"),
+        ("Symbole", "@icon")
+    ])
+    p.add_tools(hover)
     
     # Point pour le client sélectionné
-    p.scatter([client_proba], [1], size=12, color="blue", legend_label="Client Sélectionné")
-    p.line([0.3, 0.3], [0, 2], color="black", line_dash="dashed", legend_label="Seuil: 0.3")
+    p.scatter([client_proba], [1], size=18, color="blue", alpha=0.9, 
+              legend_label="Client Sélectionné", marker="circle")
+    
+    p.line([0.3, 0.3], [0, 2], color="black", line_dash="dashed", line_width=2,
+           legend_label="Seuil: 0.3")
     
     # Customisation
     p.xaxis.formatter = NumeralTickFormatter(format="0.0%")
     p.legend.location = "top_right"
+    p.legend.label_text_font_size = "10pt"
     p.yaxis.visible = False  # Cache l'axe Y pour un effet clean
     
     # Image ou icône en fonction du statut du client
