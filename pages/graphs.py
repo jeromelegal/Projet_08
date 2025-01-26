@@ -143,7 +143,7 @@ def create_credit_values_distribution(df, client_credit):
 
 def create_credit_probability_dotplot(df, client_proba):
     df['status'] = np.where(df['proba'] > 0.3, 'Accordé', 'Refusé')
-    df['color'] = np.where(df['proba'] > 0.3, '#228B22', '#B22222')
+    df['color'] = np.where(df['proba'] > 0.3, '#377eb8', '#ff7f00')
     df['icon'] = np.where(df['proba'] > 0.3, '✅', '❌')
     df['y'] = 1  
 
